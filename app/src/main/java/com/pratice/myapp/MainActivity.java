@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -18,22 +19,25 @@ import android.view.View;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.gson.Gson;
 import com.pratice.myapp.adapter.MainActivityViewPagerAdapter;
 import com.pratice.myapp.fragments.About;
 import com.pratice.myapp.fragments.Favorite;
 import com.pratice.myapp.fragments.Home;
 import com.pratice.myapp.model.Anime;
 import com.pratice.myapp.model.Genre;
+import com.pratice.myapp.model.User;
 import com.pratice.myapp.viewmodel.MyViewModel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
     ViewPager2 viewPager2;
+    Gson gson;
     TabLayout tabLayout;
     MainActivityViewPagerAdapter mainActivityViewPagerAdapter;
     TabLayoutMediator tabLayoutMediator;
@@ -41,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
     Fragment favorite;
     Fragment profile;
     List<TabClass> tabs;
+    MyViewModel viewModelStorage;
+
+
+
 
     public class TabClass{
         Drawable drawableIcon;
@@ -84,16 +92,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        if (getSupportActionBar() != null) {
-//            getSupportActionBar().hide();
-//        }
+        gson=new Gson();
+
         mainActivityViewPagerAdapter=new MainActivityViewPagerAdapter(getSupportFragmentManager(),getLifecycle());
         tabs=new ArrayList<>();
         viewPager2=findViewById(R.id.viewPager);
         tabLayout=findViewById(R.id.tablayout);
-        home=new Home(getApplicationContext());
-        profile=new About(getApplicationContext());
-        favorite=new Favorite(getApplicationContext());
+        home=new Home();
+        profile=new About();
+        favorite=new Favorite();
 
         mainActivityViewPagerAdapter.add(home);
         mainActivityViewPagerAdapter.add(profile);
@@ -129,13 +136,21 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void onPause() {
+
+        super.onPause();
+
+    }
+
     private void signOut() {
-        sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
-        SharedPreferences.Editor editor=sharedPreferences.edit();
-        editor.remove("name");
+        SharedPreferences user_sharedPreferences= getSharedPreferences("login",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=user_sharedPreferences.edit();
+        editor.remove("user");
         editor.commit();
         Intent intent=new Intent(MainActivity.this,SplashActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 }

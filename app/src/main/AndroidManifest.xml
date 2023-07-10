@@ -15,6 +15,9 @@
         android:theme="@style/Theme.MyApp"
         tools:targetApi="31">
         <activity
+            android:name=".Item"
+            android:exported="false" />
+        <activity
             android:name=".Progress"
             android:exported="false" />
         <activity

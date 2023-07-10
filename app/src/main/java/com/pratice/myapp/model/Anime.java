@@ -1,9 +1,14 @@
 package com.pratice.myapp.model;
 
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 import java.util.Arrays;
-
+//@Entity(tableName = "anime")
 public class Anime implements Serializable {
+//    @PrimaryKey(autoGenerate = false)
     String _id;
     String title;
     String[] alternativeTitles;
@@ -15,6 +20,7 @@ public class Anime implements Serializable {
     String image;
     String link;
     String status;
+
     String synopsis;
     String thumb;
     String type;

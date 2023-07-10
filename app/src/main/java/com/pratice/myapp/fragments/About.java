@@ -14,10 +14,7 @@ import com.pratice.myapp.R;
 
 public class About extends Fragment {
 
-    Context context;
-    public About(Context context){
-        this.context=context;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

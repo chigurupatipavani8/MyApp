@@ -32,8 +32,10 @@ public class ApiCreationAndCall {
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
                         .get()
-                        .addHeader("X-RapidAPI-Key", "13f9a66f85mshfee01a15889ebe8p1d0bc6jsne6e3a37b9c3c")
+                        .addHeader("X-RapidAPI-Key", "be9ac32bd6mshffe0f286b3486fbp158c2cjsncc79afae2d9b")
                         .addHeader("X-RapidAPI-Host", "anime-db.p.rapidapi.com")
+//                        .addHeader("X-RapidAPI-Key", "13f9a66f85mshfee01a15889ebe8p1d0bc6jsne6e3a37b9c3c")
+//                        .addHeader("X-RapidAPI-Host", "anime-db.p.rapidapi.com")
                         .build();
                 return chain.proceed(request);
             }

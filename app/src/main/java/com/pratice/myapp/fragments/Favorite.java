@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,8 @@ import com.google.gson.Gson;
 import com.pratice.myapp.R;
 import com.pratice.myapp.adapter.FavoriteListAdapter;
 import com.pratice.myapp.model.Anime;
+import com.pratice.myapp.model.User;
+import com.pratice.myapp.viewmodel.MyViewModel;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,33 +29,34 @@ import java.util.TreeSet;
 
 public class Favorite extends Fragment {
 
-    SharedPreferences fav_sharedPreferences;
-    HashSet<String> fav_set;
-    List<Anime> fav_animes;
+    List<com.pratice.myapp.model.Favorite> fav_animes;
     Gson gson;
+    User u;
+    String userString;
+    SharedPreferences sharedPreferences;
     RecyclerView recyclerView;
-    Context context;
-    public Favorite(Context context){
-        fav_animes=new ArrayList<>();
-        fav_set=new HashSet<>();
-        this.gson=new Gson();
-        fav_sharedPreferences= context.getSharedPreferences("fav_list", Context.MODE_PRIVATE);
-        fav_set= (HashSet<String>) fav_sharedPreferences.getStringSet("fav",fav_set);
-    }
+    MyViewModel viewModelStorage;
+    List<com.pratice.myapp.model.Favorite> favorites;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        gson=new Gson();
+        favorites=new ArrayList<>();
+        sharedPreferences= getActivity().getSharedPreferences("login",Context.MODE_PRIVATE);
+        userString=sharedPreferences.getString("user","");
+        u=gson.fromJson(userString, User.class);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view=inflater.inflate(R.layout.fragment_favorite, container, false);
 
+        View view=inflater.inflate(R.layout.fragment_favorite, container, false);
         recyclerView=view.findViewById(R.id.favorite_list);
+        viewModelStorage=new ViewModelProvider(this).get(MyViewModel.class);
 
         return view;
     }
@@ -64,13 +68,9 @@ public class Favorite extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        fav_set= (HashSet<String>) fav_sharedPreferences.getStringSet("fav",fav_set);
-        Iterator it=fav_set.iterator();
-        fav_animes=new ArrayList<>();
-        while (it.hasNext()){
-            fav_animes.add(gson.fromJson((String) it.next(),Anime.class));
-        }
-        FavoriteListAdapter favoriteListAdapter=new FavoriteListAdapter(getContext(),fav_animes);
+
+        favorites=viewModelStorage.getAllFav(u.getUser_id()).getValue();
+        FavoriteListAdapter favoriteListAdapter=new FavoriteListAdapter(getContext(),favorites,viewModelStorage);
         recyclerView.setAdapter(favoriteListAdapter);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);

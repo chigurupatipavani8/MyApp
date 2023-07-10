@@ -16,11 +16,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
 import com.pratice.myapp.R;
 import com.pratice.myapp.model.Anime;
+import com.pratice.myapp.model.Favorite;
 import com.pratice.myapp.model.Genre;
+import com.pratice.myapp.model.User;
+import com.pratice.myapp.network.CheckNetworkConnectivity;
+import com.pratice.myapp.viewmodel.MyViewModel;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,21 +37,19 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerVi
     HashMap<String,List<Anime>>  genres;
     Context context;
     List<Genre> genre;
+
     private RecyclerView.RecycledViewPool viewPool;
-    SharedPreferences fav_sharedPreferences;
-    SharedPreferences.Editor editor;
-    HashSet<String> fav_set;
-    HashSet<String> fav_id_set;
-    public HomeRecyclerViewAdapter(Context context, HashMap<String,List<Anime>> genres, List<Genre> genre) {
+    MyViewModel myViewModel;
+
+
+
+    public HomeRecyclerViewAdapter(Context context, HashMap<String,List<Anime>> genres, List<Genre> genre, MyViewModel myViewModel) {
         this.context=context;
         this.genres=genres;
         this.genre=genre;
+        this.myViewModel=myViewModel;
+
         viewPool = new RecyclerView.RecycledViewPool();
-        fav_set=new HashSet<>();
-        fav_id_set=new HashSet<>();
-        fav_sharedPreferences= context.getSharedPreferences("fav_list",Context.MODE_PRIVATE);
-        this.fav_set= (HashSet<String>) fav_sharedPreferences.getStringSet("fav",fav_set);
-        this.fav_id_set=(HashSet<String>)fav_sharedPreferences.getStringSet("fav_id",fav_id_set);
 
     }
     @NonNull
@@ -58,7 +62,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull GenreViewHolder holder, int position) {
         holder.title.setText(genre.get(position).get_id());
-        MovieRecyclerAdpter childAdpter=new MovieRecyclerAdpter(genres.get(genre.get(position).get_id()),context,this.fav_id_set,this.fav_set);
+        MovieRecyclerAdpter childAdpter=new MovieRecyclerAdpter(genres.get(genre.get(position).get_id()),context,myViewModel);
         holder.childRecyclerView.setAdapter(childAdpter);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(holder.childRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.childRecyclerView.setLayoutManager(linearLayoutManager);

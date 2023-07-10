@@ -16,6 +16,8 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.pratice.myapp.R;
 import com.pratice.myapp.model.Anime;
+import com.pratice.myapp.model.Favorite;
+import com.pratice.myapp.viewmodel.MyViewModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -25,23 +27,20 @@ import java.util.TreeSet;
 
 public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapter.FavViewHolder>{
     Context context;
-    List<Anime> fav_list;
-    SharedPreferences fav_sharedPreferences;
-    SharedPreferences.Editor editor;
+    List<Favorite> fav_list;
+
     HashSet<String> fav_set;
     HashSet<String> fav_id;
     Gson gson;
+    MyViewModel myViewModel;
 
-    public FavoriteListAdapter(Context context, List<Anime> fav_list){
+    public FavoriteListAdapter(Context context, List<Favorite> fav_list, MyViewModel myViewModel){
         this.context=context;
         this.fav_list=fav_list;
+        this.myViewModel=myViewModel;
         fav_set=new HashSet<>();
         fav_id=new HashSet<>();
         this.gson=new Gson();
-        fav_sharedPreferences= context.getSharedPreferences("fav_list",Context.MODE_PRIVATE);
-        editor=fav_sharedPreferences.edit();
-        this.fav_set= (HashSet<String>) fav_sharedPreferences.getStringSet("fav",fav_set);
-        this.fav_id=(HashSet<String>) fav_sharedPreferences.getStringSet("fav_id",fav_id);
     }
     @NonNull
     @Override
@@ -62,16 +61,11 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         holder.my_bin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fav_set= (HashSet<String>) fav_sharedPreferences.getStringSet("fav",fav_set);
-                fav_id=(HashSet<String>) fav_sharedPreferences.getStringSet("fav_id",fav_id);
-                String fav=gson.toJson(fav_list.get(holder.getAdapterPosition()));
-                fav_set.remove(fav);
-                fav_id.remove(fav_list.get(holder.getAdapterPosition()).get_id());
+
+
+                myViewModel.deleteFav(fav_list.get(holder.getAdapterPosition()));
                 fav_list.remove(holder.getAdapterPosition());
-                editor.remove("fav");
-                editor.putStringSet("fav_id",fav_id);
-                editor.putStringSet("fav",fav_set);
-                editor.commit();
+
                 notifyDataSetChanged();
             }
         });

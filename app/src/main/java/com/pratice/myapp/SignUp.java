@@ -1,6 +1,9 @@
 package com.pratice.myapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +25,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.pratice.myapp.model.User;
+import com.pratice.myapp.viewmodel.MyViewModel;
 
 import java.util.regex.Pattern;
 
@@ -37,7 +44,7 @@ public class SignUp extends AppCompatActivity {
     TextInputEditText phone;
     TextInputEditText password;
     TextInputEditText confirmPassword;
-
+    Gson gson;
     RadioGroup gender;
     RadioButton radio_feamle;
     RadioButton radio_male;
@@ -45,14 +52,15 @@ public class SignUp extends AppCompatActivity {
     MaterialButton signUp;
     MaterialButton login;
     MaterialCheckBox notification;
-    TextView error;
+    TextView errorText;
     String patternPhone;
     String patternName;
     String patternEmail;
     String patternPassword;
-    String invalid="invalid ";
+    String invalid="Invalid ";
+    String g="";
     static boolean submit=false;
-
+    MyViewModel storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,8 @@ public class SignUp extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+        gson=new Gson();
+        storage= new ViewModelProvider(this).get(MyViewModel.class);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
         SharedPreferences.Editor editor=sharedPreferences.edit();
         name_out=findViewById(R.id.name_out);
@@ -75,11 +85,11 @@ public class SignUp extends AppCompatActivity {
         phone=findViewById(R.id.phone);
         gender=findViewById(R.id.gender);
         gender_out=findViewById(R.id.gender_out);
-        error=findViewById(R.id.error);
+
         notification=findViewById(R.id.notification);
         login=findViewById(R.id.login);
         patternPhone="^[6-9]{1}[0-9]{9}$";
-        patternName="/^[a-zA-Z]+ [a-zA-Z]+$/";
+        patternName="^[A-Za-z][A-Za-z0-9_]{4,29}$";
         patternEmail="^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
                 + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
         patternPassword="^(?=.*[0-9])"
@@ -87,6 +97,7 @@ public class SignUp extends AppCompatActivity {
                 + "(?=.*[@#$%^&+=!*])"
                 + "(?=\\S+$).{8,20}$";
         signUp=findViewById(R.id.submit);
+        errorText=findViewById(R.id.error);
         Intent mainActivityIntent=new Intent(SignUp.this,MainActivity.class);
         Intent error=new Intent(SignUp.this,ErrorActivity.class);
         Intent loginActivityIntent=new Intent(SignUp.this,LoginActivity.class);
@@ -105,7 +116,7 @@ public class SignUp extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                validateInputField(s,name_out,"name",patternName);
+                validateInputField(s,name_out,"name (A-Z,a-z,0-9,_)characters are allowed",patternName);
             }
             @Override
             public void afterTextChanged(Editable s) {}
@@ -145,7 +156,14 @@ public class SignUp extends AppCompatActivity {
         gender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-
+                switch(checkedId){
+                    case R.id.radio_male:
+                        g="male";
+                        break;
+                    case R.id.radio_female:
+                        g="female";
+                        break;
+                }
             }
         });
         notification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -165,8 +183,8 @@ public class SignUp extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 check();
-//                if(submit)
-//                    validateInputField(name.getText(),name_out,"name",patternName);
+                if(submit)
+                    validateInputField(name.getText(),name_out,"name",patternName);
                 if(submit)
                     validateInputField(email.getText(),email_out,"email",patternEmail);
                 if(submit)
@@ -177,22 +195,21 @@ public class SignUp extends AppCompatActivity {
                     validateInputField(confirmPassword.getText(),confirmPassword_out,"confirm password",patternPassword);
 
                 if(submit){
-                    if(isOnline()){
-                        editor.putString("name",name.getText().toString());
-                        editor.commit();
+
+                    User u=new User(name.getText().toString(),email.getText().toString(),phone.getText().toString(),g,password.getText().toString());
+                    String message=storage.addUser(u);
+                    LiveData<User> storedUser=storage.getUser(email.getText().toString());
+                    String userString=gson.toJson(storedUser.getValue());
+                    editor.putString("user",userString);
+                    editor.commit();
+                    if(message.equals("success")) {
+                        Toast.makeText(SignUp.this, message, Toast.LENGTH_SHORT).show();
                         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivityIntent);
                     }
-                    else{
-                        editor.putString("name",name.getText().toString());
-                        Toast.makeText(SignUp.this, "not connected to internet", Toast.LENGTH_SHORT).show();
-                        error.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        error.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        error.putExtra("error","no Internet Connection");
-                        startActivity(error);
+                    else if(message.contains("UNIQUE")){
+                        Toast.makeText(SignUp.this, "Email already exist", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
                 else{
                     validateInputField(confirmPassword.getText(),confirmPassword_out,"confirm password",patternPassword);
@@ -201,17 +218,12 @@ public class SignUp extends AppCompatActivity {
                     validateInputField(email.getText(),email_out,"email",patternEmail);
 //                    validateInputField(name.getText(),name_out,"name",patternName);
                     check();
+                    errorText.setText("please check the details entered");
                 }
 
             }
         });
 
-    }
-    public boolean isOnline() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
     }
     public void validateInputField(CharSequence s,TextInputLayout layout,String message,String pattern){
         if(patternMatches(s.toString(),pattern)){
@@ -220,9 +232,16 @@ public class SignUp extends AppCompatActivity {
             submit=true;
         }
         else{
-            layout.setHelperText(invalid+message);
-            layout.setBoxStrokeColor(getResources().getColor(R.color.red));
-            submit=false;
+            if(s.toString().equals("")){
+                layout.setHelperText("Empty " + message);
+                layout.setBoxStrokeColor(getResources().getColor(R.color.red));
+                submit = false;
+            }
+            else {
+                layout.setHelperText(invalid + message);
+                layout.setBoxStrokeColor(getResources().getColor(R.color.red));
+                submit = false;
+            }
         }
     }
     public void check(){

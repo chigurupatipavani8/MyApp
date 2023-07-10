@@ -1,6 +1,8 @@
 package com.pratice.myapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +19,14 @@ import android.widget.Toast;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.pratice.myapp.model.Favorite;
+import com.pratice.myapp.model.User;
+import com.pratice.myapp.viewmodel.MyViewModel;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
@@ -27,11 +36,16 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText password;
     MaterialButton login;
     MaterialButton signUp;
-    TextView error;
+    TextView errorText;
     String patternEmail;
     String patternPassword;
     boolean submit=false;
-    String invalid="invalid ";
+    String invalid="Invalid ";
+    MyViewModel storage;
+    List<Favorite> fav_list;
+    HashSet<String> fav_set;
+    HashSet<String> fav_id_set;
+    Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +54,11 @@ public class LoginActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+        fav_id_set=new HashSet<>();
+        fav_set=new HashSet<>();
+        fav_list=new ArrayList<>();
+        gson=new Gson();
+        storage= new ViewModelProvider(this).get(MyViewModel.class);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
         SharedPreferences.Editor editor=sharedPreferences.edit();
         Intent mainActivityIntent=new Intent(LoginActivity.this,MainActivity.class);
@@ -54,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
         password=findViewById(R.id.password);
         login=findViewById(R.id.submit);
         signUp=findViewById(R.id.sign_up);
+        errorText=findViewById(R.id.error);
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,20 +87,25 @@ public class LoginActivity extends AppCompatActivity {
                 validateInputField(email.getText(),email_out,"email",patternEmail);
                 validateInputField(password.getText(),password_out,"password",patternPassword);
                 if(submit){
-                    if(isOnline()) {
-                        editor.putString("name", email.getText().toString());
+                    LiveData<User> u=storage.getUser(email.getText().toString());
+                    if(u!=null && u.getValue()!=null && u.getValue().getPassword().equals(password.getText().toString())){
+                        int user_id=u.getValue().getUser_id();
+                        String userString=gson.toJson(u.getValue());
+                        editor.putString("user", userString);
                         editor.commit();
                         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivityIntent);
                     }
                     else{
-                        editor.putString("name",email.getText().toString());
-                        Toast.makeText(LoginActivity.this, "not connected to internet", Toast.LENGTH_SHORT).show();
-                        error.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        error.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        error.putExtra("error","no Internet Connection");
-                        startActivity(error);
+                        if(u!=null && u.getValue()==null ){
+                            errorText.setText("Email doesn't exist please SignUp");
+                        }
+                        else
+                            errorText.setText("Worng Credientials");
                     }
+                }
+                else{
+                    errorText.setText("please check the details entered");
                 }
             }
         });
@@ -113,9 +138,16 @@ public class LoginActivity extends AppCompatActivity {
             submit=true;
         }
         else{
-            layout.setHelperText(invalid+message);
-            layout.setBoxStrokeColor(getResources().getColor(R.color.red));
-            submit=false;
+            if(s.toString().equals("")){
+                layout.setHelperText("Empty " + message);
+                layout.setBoxStrokeColor(getResources().getColor(R.color.red));
+                submit = false;
+            }
+            else {
+                layout.setHelperText(invalid + message);
+                layout.setBoxStrokeColor(getResources().getColor(R.color.red));
+                submit = false;
+            }
         }
     }
     public static boolean patternMatches(String emailAddress, String regexPattern) {
@@ -123,10 +155,5 @@ public class LoginActivity extends AppCompatActivity {
                 .matcher(emailAddress)
                 .matches();
     }
-    public boolean isOnline() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
+
 }

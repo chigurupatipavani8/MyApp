@@ -24,29 +24,14 @@ public class SplashActivity extends AppCompatActivity {
         Intent main=new Intent(SplashActivity.this, MainActivity.class);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
         SharedPreferences.Editor editor=sharedPreferences.edit();
-        if(sharedPreferences.contains("name")) {
-            if(isOnline()) {
+        if(sharedPreferences.contains("user")) {
                 main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(main);
-            }
-            else {
-                Toast.makeText(SplashActivity.this, "not connected to internet", Toast.LENGTH_SHORT).show();
-                error.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                error.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                error.putExtra("error","no Internet Connection");
-                startActivity(error);
-            }
         }
         else{
             login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(login);
         }
         finish();
-    }
-    public boolean isOnline() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
     }
 }
