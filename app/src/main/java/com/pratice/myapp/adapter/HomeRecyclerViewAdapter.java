@@ -66,7 +66,7 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerVi
         holder.childRecyclerView.setAdapter(childAdpter);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(holder.childRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.childRecyclerView.setLayoutManager(linearLayoutManager);
-        holder.childRecyclerView.setRecycledViewPool(viewPool);
+//        holder.childRecyclerView.setRecycledViewPool(viewPool);
     }
 
 

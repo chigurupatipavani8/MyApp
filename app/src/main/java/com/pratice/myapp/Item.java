@@ -43,7 +43,7 @@ public class Item extends AppCompatActivity {
         Picasso.with(this)
                         .load(anime.getImage())
                         .placeholder(R.drawable.brandimagefour)
-                        .error(R.drawable.sad)
+                        .error(R.drawable.ic_action_error_image1)
                         .centerCrop()
                         .fit()
                         .into(image);

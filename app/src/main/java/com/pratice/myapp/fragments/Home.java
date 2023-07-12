@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,11 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class Home extends Fragment {
+public class Home extends Fragment implements CheckNetworkConnectivity.NetworkConnection{
     static int count;
     List<Genre> strs;
     List<Anime> animes;
@@ -51,6 +55,8 @@ public class Home extends Fragment {
     HomeRecyclerViewAdapter homeRecyclerViewAdapter;
     ProgressBar progressBar;
     MyViewModel viewModelStorage;
+    TextView no_internet;
+
     CheckNetworkConnectivity checkNetworkConnectivity;
     CheckNetworkConnectivity.NetworkCallbackClass networkCallbackClass;
     User u;
@@ -59,6 +65,10 @@ public class Home extends Fragment {
     HashSet<String> fav_id_set;
     HashSet<String> fav_set;
     User user;
+    Parcelable recylerViewState;
+    Dialog dialog;
+    LinearLayout linearLayout;
+    ImageView imageView;
 //    public Home(){
 //
 //    }
@@ -69,9 +79,10 @@ public class Home extends Fragment {
         super.onCreate(savedInstanceState);
         viewModelStorage=new ViewModelProvider(this).get(MyViewModel.class);
         checkNetworkConnectivity=new CheckNetworkConnectivity();
-        networkCallbackClass=checkNetworkConnectivity.getInstance();
-        checkNetworkConnectivity.registerNetwork(getContext());
-        checkLoad();
+        dialog = new Dialog(getContext());
+        networkCallbackClass=checkNetworkConnectivity.getInstance(this);
+//        checkNetworkConnectivity.registerNetwork(getContext());
+//        checkLoad();
     }
 
     @Override
@@ -82,8 +93,12 @@ public class Home extends Fragment {
         strs=new ArrayList<>();
         genreAnime=new HashMap<>();
         progressBar=view.findViewById(R.id.progress);
+        linearLayout=view.findViewById(R.id.recyclerView_linear_layout);
+        imageView=view.findViewById(R.id.no_data);
         homeRecyclerView=view.findViewById(R.id.data_recyclerView);
-
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        homeRecyclerView.setLayoutManager(linearLayoutManager);
+        no_internet=view.findViewById(R.id.no_internet);
         return view;
     }
     @Override
@@ -93,8 +108,15 @@ public class Home extends Fragment {
 
     @Override
     public void onResume() {
+        checkNetworkConnectivity.registerNetwork(getContext());
         super.onResume();
-        checkOnline();
+        if(!isOnline()){
+            onDisconnect();
+            checkNetworkConnectivity.unRegisterNetwork(getContext());
+        }
+        if(recylerViewState!=null)
+            homeRecyclerView.getLayoutManager().onRestoreInstanceState(recylerViewState);
+//        checkOnline();
         if(!(genreAnime==null || animes==null || genreAnime.size()==0 || animes.size()==0)) {
             homeRecyclerViewAdapter = new HomeRecyclerViewAdapter(getContext(), genreAnime, strs,viewModelStorage);
             homeRecyclerView.setAdapter(homeRecyclerViewAdapter);
@@ -128,71 +150,34 @@ public class Home extends Fragment {
     }
 
     public void checkLoad(){
-        load();
         if(!(genreAnime==null || animes==null || genreAnime.size()==0 || animes.size()==0)) {
             progressBar.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
+            homeRecyclerView.setVisibility(View.VISIBLE);
             homeRecyclerViewAdapter = new HomeRecyclerViewAdapter(getContext(), genreAnime, strs,viewModelStorage);
             homeRecyclerView.setAdapter(homeRecyclerViewAdapter);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-            homeRecyclerView.setLayoutManager(linearLayoutManager);
+            no_internet.setVisibility(View.GONE);
+
         }
         else{
+            load();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
                     checkLoad();
                 }
-            },4000);
+            },3000);
         }
 
     }
-    public void checkOnline(){
-        Dialog dialog = new Dialog(getContext());
-        if(!isOnline()){
-            dialog.setContentView(R.layout.no_connection_layout);
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.setCancelable(false);
-            dialog.getWindow().getAttributes().windowAnimations = R.style.animation;
-            ImageView image=dialog.findViewById(R.id.image);
-            Button retry=dialog.findViewById(R.id.retry);
-            Button cancel=dialog.findViewById(R.id.cancel);
-            image.setImageResource(R.drawable.ic_action_no_connection);
-            cancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    Toast.makeText(getContext(), "Better luck next time", Toast.LENGTH_SHORT).show();
-                }
-            });
-            retry.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(isOnline()){
-                        dialog.dismiss();
-                    }
-                    else{
-                        Toast.makeText(getContext(), "No Connection", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            dialog.show();
-        }
-    }
+
     @Override
     public void onPause(){
+        checkNetworkConnectivity.unRegisterNetwork(getContext());
+
         super.onPause();
-//        SharedPreferences sharedPreferences= getActivity().getSharedPreferences("favorite_list",Context.MODE_PRIVATE);
-//        SharedPreferences user_sharedPreferences= getActivity().getSharedPreferences("login",Context.MODE_PRIVATE);
-//        String userString=user_sharedPreferences.getString("user","");
-//        u=gson.fromJson(userString,User.class);
-////        viewModelStorage.deleteAllFav(u.getUser_id());
-//        HashSet<String> fav_set=new HashSet<>();
-//        fav_set= (HashSet<String>) sharedPreferences.getStringSet("favorite",fav_set);
-//        Iterator itr = fav_set.iterator();
-//        while (itr.hasNext()) {
-//            viewModelStorage.addFav(gson.fromJson((String) itr.next(), com.pratice.myapp.model.Favorite.class));
-//        }
+        recylerViewState = homeRecyclerView.getLayoutManager().onSaveInstanceState();
+
     }
     @Override
     public void onStop() {
@@ -202,12 +187,67 @@ public class Home extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        checkNetworkConnectivity.unRegisterNetwork(getContext());
+//        checkNetworkConnectivity.unRegisterNetwork(getContext());
     }
     public boolean isOnline() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected()) && CheckNetworkConnectivity.isNetworkAvailable;
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
+
+    private void setNo_internetText(){
+        no_internet.setText("No Internet");
+        no_internet.setVisibility(View.VISIBLE);
+    }
+    private void removeNo_internetText(){
+        no_internet.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onDisconnect() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(genreAnime==null || animes==null || genreAnime.size()==0 || animes.size()==0){
+                    progressBar.setVisibility(View.GONE);
+                    homeRecyclerView.setVisibility(View.GONE);
+                    imageView.setVisibility(View.VISIBLE);
+                }
+                setNo_internetText();
+                dialog.setContentView(R.layout.no_connection_layout);
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.setCancelable(false);
+                dialog.getWindow().getAttributes().windowAnimations = R.style.animation;
+                ImageView image=dialog.findViewById(R.id.image);
+                Button cancel=dialog.findViewById(R.id.cancel);
+                image.setImageResource(R.drawable.ic_action_no_connection);
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        Toast.makeText(getContext(), "Better luck next time", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                if(getActivity()!=null)
+                    dialog.show();
+
+            }
+        },2000);
+
+
+    }
+
+    @Override
+    public void onConnect() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                removeNo_internetText();
+                imageView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
+                dialog.dismiss();
+                checkLoad();
+            }});
+    }
+
 }

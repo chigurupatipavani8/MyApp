@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                         editor.commit();
                         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivityIntent);
+                        finish();
                     }
                     else{
                         if(u!=null && u.getValue()==null ){

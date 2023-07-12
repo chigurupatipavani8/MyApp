@@ -16,9 +16,9 @@ public class CheckNetworkConnectivity {
     public static boolean isNetworkAvailable=true;
 
     public static NetworkCallbackClass instance;
-    public NetworkCallbackClass getInstance(){
+    public NetworkCallbackClass getInstance(NetworkConnection networkConnection){
         if(instance==null){
-            instance=new NetworkCallbackClass();
+            instance=new NetworkCallbackClass(networkConnection);
         }
         return instance;
     }
@@ -32,16 +32,22 @@ public class CheckNetworkConnectivity {
         try {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkRequest request = new NetworkRequest.Builder()
-//                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//                    .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
                     .build();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 connectivityManager.requestNetwork(request,instance,1000);
+//                connectivityManager.registerDefaultNetworkCallback(instance);
+                connectivityManager.registerNetworkCallback(request,instance);
+
             }
 
         }catch (Exception e){
-                isNetworkAvailable = false;
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
     public static void  unRegisterNetwork(Context context){
@@ -51,13 +57,18 @@ public class CheckNetworkConnectivity {
                 connectivityManager.unregisterNetworkCallback(instance);
             }
         }catch (Exception e){
-            isNetworkAvailable = false;
+
         }
     }
 
     public class NetworkCallbackClass extends ConnectivityManager.NetworkCallback{
+        NetworkConnection networkConnection;
+        NetworkCallbackClass(NetworkConnection networkConnection){
+            this.networkConnection=networkConnection;
+        }
         @Override
         public void onAvailable (Network network){
+            super.onAvailable(network);
             InetAddress inetAddress;
             try {
                 inetAddress=network.getByName("www.google.com");
@@ -66,41 +77,43 @@ public class CheckNetworkConnectivity {
             }
             if(inetAddress!=null){
                 isNetworkAvailable=true;
+                networkConnection.onConnect();
             }
             else{
                 isNetworkAvailable=false;
+               networkConnection.onDisconnect();
             }
+
 
         }
         @Override
         public void onUnavailable (){
+            super.onUnavailable();
             isNetworkAvailable=false;
+            networkConnection.onDisconnect();
         }
-//        @Override
-//        public void onLost (Network network){
-//            isNetworkAvailable=false;
-//        }
+        @Override
+        public void onLost (Network network){
+            super.onLost(network);
+            isNetworkAvailable=false;
+            networkConnection.onDisconnect();
+        }
+
+
         @Override
         public void onCapabilitiesChanged (Network network,
                                            NetworkCapabilities networkCapabilities)
         {
-            InetAddress inetAddress;
-            try {
-                inetAddress=network.getByName("www.google.com");
-            } catch (UnknownHostException e) {
-                inetAddress=null;
-            }
-         if(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (inetAddress!=null)) {
+            super.onCapabilitiesChanged(network, networkCapabilities);
+         if(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
              isNetworkAvailable=true;
+             networkConnection.onConnect();
          }
          else{
              isNetworkAvailable=false;
+             networkConnection.onDisconnect();
          }
         }
-//        @Override
-//        public void onLinkPropertiesChanged (Network network, LinkProperties linkProperties){
-//
-//        }
     }
 
 }

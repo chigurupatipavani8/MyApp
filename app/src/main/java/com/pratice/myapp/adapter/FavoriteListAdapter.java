@@ -55,7 +55,7 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
         Glide.with(context)
                 .load(fav_list.get(position).getThumb())
                 .placeholder(R.drawable.brandimagefour)
-                .error(R.drawable.sad)
+                .error(R.drawable.ic_action_error_image1)
                 .centerCrop()
                 .into(holder.image);
         holder.my_bin.setOnClickListener(new View.OnClickListener() {

@@ -206,6 +206,7 @@ public class SignUp extends AppCompatActivity {
                         Toast.makeText(SignUp.this, message, Toast.LENGTH_SHORT).show();
                         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivityIntent);
+                        finish();
                     }
                     else if(message.contains("UNIQUE")){
                         Toast.makeText(SignUp.this, "Email already exist", Toast.LENGTH_SHORT).show();

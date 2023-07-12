@@ -35,12 +35,10 @@ public class MyViewModel  extends AndroidViewModel {
     MutableLiveData<Favorite> fav=new MutableLiveData<>();
     List<Favorite> my_fav_list=new ArrayList<>();
     List<String> my_fav_list_ids =new ArrayList<>();
-    Favorite my_fav;
 
     private MyRepository repository;
     User u;
-//    private LiveData<User> user;
-//    MutableLiveData<List<String>> fav_list=new MutableLiveData<>();
+
     public MyViewModel(@NonNull Application application) {
         super(application);
         repository=new MyRepository(application);

@@ -23,19 +23,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal |bottom"
         android:orientation="horizontal"
-        android:layout_marginBottom="150sp"
         android:weightSum="3"
+
         android:gravity="center"
         >
-        <Button
-            android:layout_width="130sp"
-            android:layout_height="wrap_content"
-            android:id="@+id/retry"
-            android:text="Retry"
-            android:textSize="25sp"
-            android:layout_margin="10sp"
-            android:layout_weight="1"
-            />
+<!--        android:layout_marginBottom="150sp"-->
+
+        <!--        <Button-->
+<!--            android:layout_width="130sp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:id="@+id/retry"-->
+<!--            android:text="Retry"-->
+<!--            android:textSize="25sp"-->
+<!--            android:layout_margin="10sp"-->
+<!--            android:layout_weight="1"-->
+<!--            />-->
         <Button
             android:layout_width="130sp"
             android:layout_height="wrap_content"
