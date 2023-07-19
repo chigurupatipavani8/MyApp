@@ -40,22 +40,22 @@ public class MyRepository {
     public void deleteFav(Favorite favorite){
         new DeleteUserFavorite(favdao).execute(favorite);
     }
-    public void deleteAllFav(int user_id){
-        new DeleteAllUserFavorite(favdao).execute(user_id);
+    public void deleteAllFav(int userId){
+        new DeleteAllUserFavorite(favdao).execute(userId);
     }
 
-    public List<Favorite> getUserFav(int user_id){
+    public List<Favorite> getUserFav(int userId){
         try {
-            return new FavList(favdao).execute(user_id).get();
+            return new FavList(favdao).execute(userId).get();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
-    public List<String> getUserFav_ids(int user_id){
+    public List<String> getUserFavIds(int userId){
         try {
-            return new FavList_ids(favdao).execute(user_id).get();
+            return new FavList_ids(favdao).execute(userId).get();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -65,9 +65,17 @@ public class MyRepository {
 
 
     public User getUserByEmail(String email){
-//        return userDao.getUserByEmail(email);
         try {
             return (User)(new GetUserByNameOrEmailAsyncTask(userDao).execute(email).get());
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public User getUserById(int userId){
+        try {
+            return (User)(new GetUserByUserId(userDao).execute(userId).get());
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -124,7 +132,20 @@ public class MyRepository {
 
         @Override
         protected User doInBackground(String... models) {
-            return userDao.getUserByEmail(models[0]);
+            if(models[0].contains("@"))
+                return userDao.getUserByEmail(models[0]);
+            else
+                return userDao.getUserByName(models[0]);
+        }
+    }
+    private static class GetUserByUserId extends AsyncTask<Integer, Void, User> {
+        private UserDao userDao;
+        private GetUserByUserId(UserDao userdao) {
+            this.userDao = userdao;
+        }
+        @Override
+        protected User doInBackground(Integer... models) {
+            return userDao.getUserById(models[0]);
         }
     }
 
@@ -135,7 +156,7 @@ public class MyRepository {
         }
         @Override
         protected Void doInBackground(Favorite... models) {
-            favDao.delete(models[0].getUser_id(),models[0].get_id());
+            favDao.delete(models[0].getUserId(),models[0].getFavId());
             return null;
         }
     }

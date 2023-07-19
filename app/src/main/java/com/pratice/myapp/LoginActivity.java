@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
-    TextInputLayout email_out;
-    TextInputLayout password_out;
+    TextInputLayout emailOut;
+    TextInputLayout passwordOut;
     TextInputEditText email;
     TextInputEditText password;
     MaterialButton login;
@@ -42,10 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     boolean submit=false;
     String invalid="Invalid ";
     MyViewModel storage;
-    List<Favorite> fav_list;
-    HashSet<String> fav_set;
-    HashSet<String> fav_id_set;
-    Gson gson;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,22 +51,18 @@ public class LoginActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-        fav_id_set=new HashSet<>();
-        fav_set=new HashSet<>();
-        fav_list=new ArrayList<>();
-        gson=new Gson();
+
         storage= new ViewModelProvider(this).get(MyViewModel.class);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
         SharedPreferences.Editor editor=sharedPreferences.edit();
         Intent mainActivityIntent=new Intent(LoginActivity.this,MainActivity.class);
-        Intent error=new Intent(LoginActivity.this,ErrorActivity.class);
         Intent signUpActivityIntent=new Intent(LoginActivity.this,SignUp.class);
         patternEmail="^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
                 + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
         patternPassword="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*])(?=\\S+$).{8,20}$";
-        email_out=findViewById(R.id.email_out);
+        emailOut=findViewById(R.id.email_out);
         email=findViewById(R.id.email);
-        password_out=findViewById(R.id.password_out);
+        passwordOut=findViewById(R.id.password_out);
         password=findViewById(R.id.password);
         login=findViewById(R.id.submit);
         signUp=findViewById(R.id.sign_up);
@@ -84,14 +77,13 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                validateInputField(email.getText(),email_out,"email",patternEmail);
-                validateInputField(password.getText(),password_out,"password",patternPassword);
+                validateInputField(email.getText(),emailOut,"email",patternEmail);
+                validateInputField(password.getText(),passwordOut,"password",patternPassword);
                 if(submit){
                     LiveData<User> u=storage.getUser(email.getText().toString());
                     if(u!=null && u.getValue()!=null && u.getValue().getPassword().equals(password.getText().toString())){
-                        int user_id=u.getValue().getUser_id();
-                        String userString=gson.toJson(u.getValue());
-                        editor.putString("user", userString);
+                        int userId=u.getValue().getUserId();
+                        editor.putInt("user", userId);
                         editor.commit();
                         mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(mainActivityIntent);
@@ -115,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateInputField(email.getText(),email_out,"email",patternEmail);
+                validateInputField(email.getText(),emailOut,"email",patternEmail);
             }
             @Override
             public void afterTextChanged(Editable s) {}
@@ -125,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateInputField(password.getText(),password_out,"password",patternPassword);
+                validateInputField(password.getText(),passwordOut,"password",patternPassword);
             }
             @Override
             public void afterTextChanged(Editable s) {}
@@ -141,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         else{
             if(s.toString().equals("")){
                 layout.setHelperText("Empty " + message);
-                layout.setBoxStrokeColor(getResources().getColor(R.color.red));
+                layout.setBoxStrokeColor(getResources().getColor(R.color.white_gray));
                 submit = false;
             }
             else {

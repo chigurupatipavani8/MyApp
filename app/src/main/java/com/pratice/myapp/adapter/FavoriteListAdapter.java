@@ -27,20 +27,19 @@ import java.util.TreeSet;
 
 public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapter.FavViewHolder>{
     Context context;
-    List<Favorite> fav_list;
+    List<Favorite> favList;
 
-    HashSet<String> fav_set;
-    HashSet<String> fav_id;
-    Gson gson;
+    HashSet<String> favSet;
+    HashSet<String> favId;
     MyViewModel myViewModel;
 
-    public FavoriteListAdapter(Context context, List<Favorite> fav_list, MyViewModel myViewModel){
+    public FavoriteListAdapter(Context context, List<Favorite> favList, MyViewModel myViewModel){
         this.context=context;
-        this.fav_list=fav_list;
+        this.favList=favList;
         this.myViewModel=myViewModel;
-        fav_set=new HashSet<>();
-        fav_id=new HashSet<>();
-        this.gson=new Gson();
+        favSet=new HashSet<>();
+        favId=new HashSet<>();
+
     }
     @NonNull
     @Override
@@ -51,9 +50,9 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull FavoriteListAdapter.FavViewHolder holder, int position) {
-        holder.title.setText(fav_list.get(position).getTitle());
+        holder.title.setText(favList.get(position).getTitle());
         Glide.with(context)
-                .load(fav_list.get(position).getThumb())
+                .load(favList.get(position).getThumb())
                 .placeholder(R.drawable.brandimagefour)
                 .error(R.drawable.ic_action_error_image1)
                 .centerCrop()
@@ -63,8 +62,8 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
             public void onClick(View v) {
 
 
-                myViewModel.deleteFav(fav_list.get(holder.getAdapterPosition()));
-                fav_list.remove(holder.getAdapterPosition());
+                myViewModel.deleteFav(favList.get(holder.getAdapterPosition()));
+                favList.remove(holder.getAdapterPosition());
 
                 notifyDataSetChanged();
             }
@@ -73,7 +72,7 @@ public class FavoriteListAdapter extends RecyclerView.Adapter<FavoriteListAdapte
 
     @Override
     public int getItemCount() {
-        return fav_list.size();
+        return favList.size();
     }
     class FavViewHolder extends RecyclerView.ViewHolder{
         ImageView image;

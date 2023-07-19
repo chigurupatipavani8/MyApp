@@ -3,19 +3,19 @@ package com.pratice.myapp.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 public class CheckNetworkConnectivity {
     public static boolean isNetworkAvailable=true;
 
     public static NetworkCallbackClass instance;
+
+    public void invalidateNetworkCallback(){
+        instance=null;
+    }
     public NetworkCallbackClass getInstance(NetworkConnection networkConnection){
         if(instance==null){
             instance=new NetworkCallbackClass(networkConnection);
@@ -24,8 +24,8 @@ public class CheckNetworkConnectivity {
     }
 
     public interface NetworkConnection{
-        public void onDisconnect();
-        public void onConnect();
+        void onDisconnect();
+        void onConnect();
     }
 
     public static void  registerNetwork(Context context){
@@ -40,9 +40,7 @@ public class CheckNetworkConnectivity {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 connectivityManager.requestNetwork(request,instance,1000);
-//                connectivityManager.registerDefaultNetworkCallback(instance);
                 connectivityManager.registerNetworkCallback(request,instance);
-
             }
 
         }catch (Exception e){
@@ -55,13 +53,15 @@ public class CheckNetworkConnectivity {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 connectivityManager.unregisterNetworkCallback(instance);
+                connectivityManager.unregisterNetworkCallback(instance);
+
             }
         }catch (Exception e){
-
+            System.out.println(e.getMessage());
         }
     }
 
-    public class NetworkCallbackClass extends ConnectivityManager.NetworkCallback{
+    public static class NetworkCallbackClass extends ConnectivityManager.NetworkCallback{
         NetworkConnection networkConnection;
         NetworkCallbackClass(NetworkConnection networkConnection){
             this.networkConnection=networkConnection;
@@ -69,22 +69,7 @@ public class CheckNetworkConnectivity {
         @Override
         public void onAvailable (Network network){
             super.onAvailable(network);
-            InetAddress inetAddress;
-            try {
-                inetAddress=network.getByName("www.google.com");
-            } catch (UnknownHostException e) {
-                inetAddress=null;
-            }
-            if(inetAddress!=null){
-                isNetworkAvailable=true;
-                networkConnection.onConnect();
-            }
-            else{
-                isNetworkAvailable=false;
-               networkConnection.onDisconnect();
-            }
-
-
+            networkConnection.onConnect();
         }
         @Override
         public void onUnavailable (){

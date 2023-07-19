@@ -1,15 +1,18 @@
 package com.pratice.myapp.model;
 
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
+//import androidx.room.Entity;
+//import androidx.room.Ignore;
+//import androidx.room.PrimaryKey;
+
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.Arrays;
 //@Entity(tableName = "anime")
 public class Anime implements Serializable {
 //    @PrimaryKey(autoGenerate = false)
-    String _id;
+    @SerializedName("_id")
+    String id;
     String title;
     String[] alternativeTitles;
     int ranking;
@@ -28,12 +31,12 @@ public class Anime implements Serializable {
     public Anime() {
     }
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String _id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -143,7 +146,7 @@ public class Anime implements Serializable {
     @Override
     public String toString() {
         return "Anime{" +
-                "_id='" + _id + '\'' +
+                "Id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", alternativeTitles=" + Arrays.toString(alternativeTitles) +
                 ", ranking=" + ranking +

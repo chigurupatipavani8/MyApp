@@ -15,21 +15,14 @@ import java.util.List;
 public interface UserDao {
     @Insert
     void insert(User user);
-
-
-//    @Delete
-//    void delete(User user);
-//
-//    @Query("DELETE FROM user")
-//    void deleteAllCourses();
-
-//    @Query("SELECT * FROM user WHERE name= :name")
-//    LiveData<User> getUserByName(String name);
-@Query("SELECT * FROM user")
-LiveData<List<User>> getUsers();
+    @Query("SELECT * FROM user")
+    LiveData<List<User>> getUsers();
+    @Query("SELECT * FROM user WHERE userId= :id")
+    User getUserById(int id);
     @Query("SELECT * FROM user WHERE email= :email")
     User getUserByEmail(String email);
-
-    @Query("SELECT * FROM user ORDER BY user_id ASC")
+    @Query("SELECT * FROM user WHERE name= :name limit 1")
+    User getUserByName(String name);
+    @Query("SELECT * FROM user ORDER BY userId ASC")
     List<User> getAllCourses();
 }

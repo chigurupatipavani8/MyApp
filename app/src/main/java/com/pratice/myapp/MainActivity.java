@@ -40,13 +40,10 @@ public class MainActivity extends AppCompatActivity {
     Gson gson;
     TabLayout tabLayout;
     MainActivityViewPagerAdapter mainActivityViewPagerAdapter;
-    TabLayoutMediator tabLayoutMediator;
     Fragment home;
     Fragment favorite;
     Fragment profile;
     List<TabClass> tabs;
-    MyViewModel viewModelStorage;
-
 
 
 
@@ -101,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
         home=new Home();
         profile=new About();
         favorite=new Favorite();
-
         mainActivityViewPagerAdapter.add(home);
         mainActivityViewPagerAdapter.add(profile);
         mainActivityViewPagerAdapter.add(favorite);
@@ -113,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
             tab.setIcon(tabs.get(position).drawableIcon);
             tab.setText(tabs.get(position).getTitle());
         }).attach();
-
-
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish();
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {

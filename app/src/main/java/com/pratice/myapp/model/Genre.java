@@ -1,17 +1,20 @@
 package com.pratice.myapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class Genre implements Serializable
 {
-    String _id;
+    @SerializedName("_id")
+    String id;
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Genre() {
@@ -21,7 +24,7 @@ public class Genre implements Serializable
     @Override
     public String toString() {
         return "Genre{" +
-                "_id='" + _id + '\'' +
+                "id='" + id + '\'' +
                 '}';
     }
 }

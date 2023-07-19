@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
+    android:layout_gravity="center"
 tools:context=".LoginActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="30dp"
             android:layout_marginVertical="5dp"
             android:paddingVertical="35dp"
@@ -33,13 +25,14 @@ tools:context=".LoginActivity">
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:src="@drawable/movie"
+                android:contentDescription="@string/noImage"
                 android:id="@+id/wave"
                 />
 
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_out"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 app:boxBackgroundMode="outline"
@@ -54,9 +47,9 @@ tools:context=".LoginActivity">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email"
-                    android:layout_width="match_parent"
+                    android:layout_width="280dp"
                     android:layout_height="wrap_content"
-                    android:hint="Email"
+                    android:hint="@string/email"
                     android:padding="12dp"
                     android:textColor="@color/splash_background_color"
                     android:textColorHint="@color/splash_background_color"
@@ -65,7 +58,7 @@ tools:context=".LoginActivity">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_out"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 app:boxBackgroundMode="outline"
@@ -75,18 +68,17 @@ tools:context=".LoginActivity">
                 app:helperTextTextColor="#f05050"
                 app:layout_constraintBottom_toTopOf="@+id/forgot_password"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/email_out"
                 app:startIconDrawable="@drawable/ic_action_password">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
-                    android:layout_width="match_parent"
+                    android:layout_width="280dp"
                     android:layout_height="wrap_content"
-                    android:hint="Password"
+                    android:hint="@string/password"
                     android:inputType="textPassword"
                     android:padding="12dp"
-                    android:textColor="@color/splash_background_color"
+                    android:textColor="@color/black"
                     android:textColorHint="@color/splash_background_color"
                     android:textSize="20sp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -94,11 +86,11 @@ tools:context=".LoginActivity">
 
             <TextView
                 android:id="@+id/forgot_password"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="20sp"
                 android:layout_marginHorizontal="5dp"
-                android:text="Forgot Password?"
+                android:text="@string/forgetPassword"
                 android:textColor="@color/splash_background_color"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toTopOf="@id/submit"
@@ -120,7 +112,7 @@ tools:context=".LoginActivity">
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/buttoncolor"
                 android:padding="10sp"
-                android:text="submit"
+                android:text="@string/login"
                 android:textSize="25sp"
                 app:layout_constraintBottom_toTopOf="@id/sign_up"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -133,12 +125,12 @@ tools:context=".LoginActivity">
                 android:backgroundTint="@color/white"
                 android:textColor="@color/splash_background_color"
                 android:padding="10sp"
-                android:text="sign up"
+                android:text="@string/sign_up"
                 android:textSize="25sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/submit" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</FrameLayout>
+
+</ScrollView>

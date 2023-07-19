@@ -107,6 +107,7 @@ tools:context=".SignUp">
                 android:layout_height="wrap_content"
                 android:hint="Mobile"
                 android:padding="12dp"
+                android:inputType="number"
                 android:textColor="@color/splash_background_color"
                 android:textColorHint="@color/splash_background_color"
                 android:textSize="20sp" />

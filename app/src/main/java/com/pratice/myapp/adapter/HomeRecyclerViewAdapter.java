@@ -30,25 +30,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerViewAdapter.GenreViewHolder>{
 
-    HashMap<String,List<Anime>>  genres;
+    TreeMap<String,List<Anime>>  genres;
     Context context;
-    List<Genre> genre;
-
+    List<String> genre;
     private RecyclerView.RecycledViewPool viewPool;
     MyViewModel myViewModel;
 
 
 
-    public HomeRecyclerViewAdapter(Context context, HashMap<String,List<Anime>> genres, List<Genre> genre, MyViewModel myViewModel) {
+    public HomeRecyclerViewAdapter(Context context, TreeMap<String,List<Anime>> genres, List<String> genre, MyViewModel myViewModel) {
         this.context=context;
         this.genres=genres;
         this.genre=genre;
         this.myViewModel=myViewModel;
-
         viewPool = new RecyclerView.RecycledViewPool();
 
     }
@@ -61,8 +60,8 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull GenreViewHolder holder, int position) {
-        holder.title.setText(genre.get(position).get_id());
-        MovieRecyclerAdpter childAdpter=new MovieRecyclerAdpter(genres.get(genre.get(position).get_id()),context,myViewModel);
+        holder.title.setText(genre.get(position));
+        MovieRecyclerAdpter childAdpter=new MovieRecyclerAdpter(genres.get(genre.get(position)),context,myViewModel);
         holder.childRecyclerView.setAdapter(childAdpter);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(holder.childRecyclerView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.childRecyclerView.setLayoutManager(linearLayoutManager);
@@ -81,7 +80,6 @@ public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<HomeRecyclerVi
             super(itemView);
             title=itemView.findViewById(R.id.title);
             childRecyclerView=itemView.findViewById(R.id.items);
-
         }
     }
 }

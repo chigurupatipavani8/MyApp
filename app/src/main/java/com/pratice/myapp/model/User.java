@@ -9,9 +9,7 @@ import java.io.Serializable;
 @Entity(tableName = "user",indices = {@Index(value = { "email"}, unique = true)})
 public class User implements Serializable {
     @PrimaryKey(autoGenerate = true)
-    int user_id;
-
-
+    int userId;
     String name;
     String email;
     String phone;
@@ -29,12 +27,12 @@ public class User implements Serializable {
     public User() {
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -80,7 +78,7 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-                "user_id=" + user_id +
+                "userId=" + userId +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +

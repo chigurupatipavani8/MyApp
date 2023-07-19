@@ -6,12 +6,12 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "favorite",indices = {@Index(value = { "user_id","_id"}, unique = true)})
+@Entity(tableName = "favorite",indices = {@Index(value = { "userId","favId"}, unique = true)})
 public class Favorite implements Serializable {
     @PrimaryKey(autoGenerate = true)
     int id;
-    int user_id;
-    String _id;
+    int userId;
+    String favId;
     String image;
     String title;
     String thumb;
@@ -20,9 +20,9 @@ public class Favorite implements Serializable {
     }
 
 
-    public Favorite(int user_id, String _id, String image, String title, String thumb) {
-        this.user_id = user_id;
-        this._id = _id;
+    public Favorite(int userId, String favId, String image, String title, String thumb) {
+        this.userId = userId;
+        this.favId = favId;
         this.image = image;
         this.title = title;
         this.thumb = thumb;
@@ -36,20 +36,20 @@ public class Favorite implements Serializable {
         this.id = id;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public String get_id() {
-        return _id;
+    public String getFavId() {
+        return favId;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setFavId(String favId) {
+        this.favId = favId;
     }
 
     public String getImage() {
@@ -81,8 +81,8 @@ public class Favorite implements Serializable {
     public String toString() {
         return "Favorite{" +
                 "id=" + id +
-                ", user_id=" + user_id +
-                ", _id='" + _id + '\'' +
+                ", userId=" + userId +
+                ", favId='" + favId + '\'' +
                 ", image='" + image + '\'' +
                 ", title='" + title + '\'' +
                 ", thumb='" + thumb + '\'' +

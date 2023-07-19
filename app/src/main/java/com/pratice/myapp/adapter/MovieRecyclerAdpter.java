@@ -42,25 +42,23 @@ public class MovieRecyclerAdpter extends RecyclerView.Adapter<MovieRecyclerAdpte
     List<Anime> animes;
     Context context;
     SharedPreferences user_sharedPreferences;
-    Gson gson;
 
     User u;
-    String userString;
+    int userId;
     MyViewModel myViewModel;
     List<Favorite> favorites;
-    List<String> favorites_ids;
+    List<String> favoritesIds;
 
 
     public MovieRecyclerAdpter(List<Anime> animes, Context context,MyViewModel myViewModel) {
         this.animes = animes;
         this.context = context;
         this.myViewModel=myViewModel;
-        gson=new Gson();
         user_sharedPreferences= context.getSharedPreferences("login",Context.MODE_PRIVATE);
-        userString=user_sharedPreferences.getString("user","");
-        u=gson.fromJson(userString,User.class);
-        this.favorites=myViewModel.getAllFav(u.getUser_id()).getValue();
-        this.favorites_ids=myViewModel.getAllFav_ids(u.getUser_id()).getValue();
+        userId=user_sharedPreferences.getInt("user",-1);
+        u=this.myViewModel.getUserById(userId).getValue();
+        this.favorites=myViewModel.getAllFav(u.getUserId()).getValue();
+        this.favoritesIds=myViewModel.getAllFavIds(u.getUserId()).getValue();
     }
 
     @NonNull
@@ -83,7 +81,7 @@ public class MovieRecyclerAdpter extends RecyclerView.Adapter<MovieRecyclerAdpte
         String title=(animes.get(position).getTitle().length()<10)?animes.get(position).getTitle():animes.get(position).getTitle().substring(0,10);
         holder.title.setText(title);
 
-        if(favorites_ids.contains(animes.get(holder.getAdapterPosition()).get_id())){
+        if(favoritesIds.contains(animes.get(holder.getAdapterPosition()).getId())){
             drawable=holder.like.getCompoundDrawables()[0]!=null?holder.like.getCompoundDrawables()[0]:context.getDrawable(R.drawable.heart);
             drawable.setTint(context.getResources().getColor(R.color.red));
             holder.like.setCompoundDrawablesWithIntrinsicBounds(drawable,null,null,null);
@@ -97,31 +95,32 @@ public class MovieRecyclerAdpter extends RecyclerView.Adapter<MovieRecyclerAdpte
             @Override
             public void onClick(View v) {
                 user_sharedPreferences= context.getSharedPreferences("login",Context.MODE_PRIVATE);
-                userString=user_sharedPreferences.getString("user","");
-                u=gson.fromJson(userString,User.class);
+                userId=user_sharedPreferences.getInt("user",-1);
+                u=myViewModel.getUserById(userId).getValue();
                 Anime anime=animes.get(holder.getAdapterPosition());
-                Favorite favorite=new Favorite(u.getUser_id(),anime.get_id(),anime.getImage(),anime.getTitle(),anime.getThumb());
-                favorites_ids=myViewModel.getAllFav_ids(u.getUser_id()).getValue();
+                Favorite favorite=new Favorite(u.getUserId(),anime.getId(),anime.getImage(),anime.getTitle(),anime.getThumb());
+                favoritesIds=myViewModel.getAllFavIds(u.getUserId()).getValue();
 
-                if(!favorites_ids.contains(anime.get_id())){
+                if(!favoritesIds.contains(anime.getId())){
                     myViewModel.addFav(favorite);
                     favorites.add(favorite);
-                    favorites_ids.add(anime.get_id());
+                    favoritesIds.add(anime.getId());
                     Toast.makeText(context, "you liked "+animes.get(holder.getAdapterPosition()).getTitle(), Toast.LENGTH_SHORT).show();
                 }
                 else{
                     myViewModel.deleteFav(favorite);
                     favorites.remove(favorite);
-                    favorites_ids.remove(anime.get_id());
+                    favoritesIds.remove(anime.getId());
                     Toast.makeText(context, "you unliked "+animes.get(holder.getAdapterPosition()).getTitle(), Toast.LENGTH_SHORT).show();
                 }
-                favorites=myViewModel.getAllFav(u.getUser_id()).getValue();
-                favorites_ids=myViewModel.getAllFav_ids(u.getUser_id()).getValue();
+                favorites=myViewModel.getAllFav(u.getUserId()).getValue();
+                favoritesIds=myViewModel.getAllFavIds(u.getUserId()).getValue();
 //                Iterator itr = fav_set.iterator();
 //                Iterator it_id=fav_id_set.iterator();
                 for(Favorite fav:favorites) {
                     System.out.println(fav);
                 }
+                System.out.println(favoritesIds);
                 System.out.println(favorites.size());
                 notifyItemChanged(holder.getAdapterPosition());
             }

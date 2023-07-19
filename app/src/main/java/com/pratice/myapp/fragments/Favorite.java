@@ -29,10 +29,7 @@ import java.util.TreeSet;
 
 public class Favorite extends Fragment {
 
-    List<com.pratice.myapp.model.Favorite> fav_animes;
-    Gson gson;
-    User u;
-    String userString;
+    int userId;
     SharedPreferences sharedPreferences;
     RecyclerView recyclerView;
     MyViewModel viewModelStorage;
@@ -43,11 +40,9 @@ public class Favorite extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gson=new Gson();
         favorites=new ArrayList<>();
         sharedPreferences= getActivity().getSharedPreferences("login",Context.MODE_PRIVATE);
-        userString=sharedPreferences.getString("user","");
-        u=gson.fromJson(userString, User.class);
+        userId=sharedPreferences.getInt("user",-1);
     }
 
     @Override
@@ -57,7 +52,6 @@ public class Favorite extends Fragment {
         View view=inflater.inflate(R.layout.fragment_favorite, container, false);
         recyclerView=view.findViewById(R.id.favorite_list);
         viewModelStorage=new ViewModelProvider(this).get(MyViewModel.class);
-
         return view;
     }
     @Override
@@ -68,8 +62,7 @@ public class Favorite extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        favorites=viewModelStorage.getAllFav(u.getUser_id()).getValue();
+        favorites=viewModelStorage.getAllFav(userId).getValue();
         FavoriteListAdapter favoriteListAdapter=new FavoriteListAdapter(getContext(),favorites,viewModelStorage);
         recyclerView.setAdapter(favoriteListAdapter);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getContext());
